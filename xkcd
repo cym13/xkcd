@@ -1,0 +1,23 @@
+#!/bin/sh
+
+if [ -z "$1" ] ; then
+    exit
+elif [ 0 -lt $1 ] 2>/dev/null ; then
+    curl -s "http://xkcd.com/$1/" | \
+    sed -n "/ctitle/s/^[^>]\+>\([^<]\+\)<.*$/\1/p"
+    w3m -dump "http://www.explainxkcd.com/wiki/index.php?title=$1" |\
+        sed -n '/Transcript/,/Comment/p' | sed '1d ; $d'
+else
+    cd /tmp
+    wget -q 'http://xkcd.com/archive'
+    titles=$(grep -i $1 archive | \
+        sed -n "s/^[^>]\+>\([^<]\+\)<.*$/\1/p")
+    IFS='
+'
+    for title in $titles ; do
+        number=$(sed -n "/$title/s/^[^\/]\+\/\([^\/]\+\)\/.*$/\1/p" archive)
+        echo $title [ \
+            $(echo $number | tr ' ' "\n" | sort -n | uniq | xargs echo) ]
+    done
+    rm archive
+fi
