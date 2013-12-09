@@ -38,7 +38,7 @@ def search(query):
 
     for item in titles:
         if query.lower() in item[1].lower():
-            yield "[" + item[0] + "]\t" + item[1].encode("utf8")
+            yield "[" + item[0] + "]\t" + item[1]
 
 
 def transcript(soup):
