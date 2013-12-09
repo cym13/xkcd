@@ -1,23 +1,70 @@
-#!/bin/sh
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-if [ -z "$1" ] ; then
-    exit
-elif [ 0 -lt $1 ] 2>/dev/null ; then
-    curl -s "http://xkcd.com/$1/" | \
-    sed -n "/ctitle/s/^[^>]\+>\([^<]\+\)<.*$/\1/p"
-    w3m -dump "http://www.explainxkcd.com/wiki/index.php?title=$1" |\
-        sed -n '/Transcript/,/Comment/p' | sed '1d ; $d'
-else
-    cd /tmp
-    wget -q 'http://xkcd.com/archive'
-    titles=$(grep -i $1 archive | \
-        sed -n "s/^[^>]\+>\([^<]\+\)<.*$/\1/p")
-    IFS='
-'
-    for title in $titles ; do
-        number=$(sed -n "/$title/s/^[^\/]\+\/\([^\/]\+\)\/.*$/\1/p" archive)
-        echo $title [ \
-            $(echo $number | tr ' ' "\n" | sort -n | uniq | xargs echo) ]
-    done
-    rm archive
-fi
+"""
+XKCD comics
+
+Usage: xkcd.py [-d] XKCD
+
+Options:
+    -d, --download  Download corresponding xkcd.
+
+Argument:
+    XKCD    If it is a number, prints the title and the transcript of the
+            corresponding xkcd.
+            Otherwise, perform a research to find corresponding xkcds.
+"""
+
+
+import re
+import requests
+from bs4 import BeautifulSoup
+from docopt import docopt
+
+
+def download(soup):
+    src_re = re.compile(r'^<.* src="([^"]+/([^"/]+))" .*>$')
+    url_line = str(soup.findAll("img")[1])
+    dl_url, name = src_re.findall(url_line)[0]
+    r = requests.get(dl_url)
+    with open(name, "wb") as dlfile:
+        dlfile.write(r.content)
+
+
+def search(query):
+    title_re = re.compile(r"<a [^>]+/([0-9]+)/[^>]+>([^<]+)<.+><br ?/>")
+    r = requests.get("http://xkcd.com/archive/")
+    titles = title_re.findall(r.content.decode(r.encoding))
+
+    for item in titles:
+        if query.lower() in item[1].lower():
+            yield "[" + item[0] + "]\t" + item[1].encode("utf8")
+
+
+def transcript(soup):
+    title = soup.title.string[6:]
+    transcript = soup.find(id="transcript").string
+
+    return title + "\n" +  "=" * len(title) + "\n\n" + transcript
+
+
+def main():
+    args = docopt(__doc__)
+    xkcd = args['XKCD']
+
+    if re.match(r"[0-9]+", xkcd):
+        r = requests.get("http://xkcd.com/" + str(xkcd))
+        page = r.text.decode(r.encoding)
+        soup = BeautifulSoup(page)
+
+        print(transcript(soup))
+        if args['--download']:
+            download(soup)
+
+    else:
+        for each in search(xkcd):
+            print(each)
+
+
+if __name__ == "__main__":
+    main()
