@@ -1,0 +1,39 @@
+Description
+===========
+
+xkcd is a simple command-line XKCD tool. It allows you to search, download or
+read the transcript of a XKCD.
+
+Documentation
+=============
+
+Usage: xkcd.py [-d] XKCD
+
+Options:
+    -d, --download  Download corresponding xkcd and do not print anything.
+
+Argument:
+    XKCD    If it is a number, prints the title and the transcript of the
+            corresponding xkcd.
+            Otherwise, performs a research to find the corresponding xkcds.
+
+Dependencies
+============
+
+docopt  https://github.com/docopt/docopt or "pip install docopt"
+
+License
+=======
+
+This program is under the GPLv3 License.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+Contact
+=======
+
+Main developper: Cédric Picard
+Email:           cedric.picard@efrei.net
+Twitter:         @Cym13
+GPG:             383A 76B9 D68D 2BD6 9D2B  4716 E3B9 F4FE 5CED 42CB
