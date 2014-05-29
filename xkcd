@@ -33,6 +33,7 @@ Argument:
 """
 
 
+import sys
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -75,6 +76,11 @@ def main():
 
     if re.match(r"^[0-9]+$", xkcd):
         r = requests.get("http://xkcd.com/" + str(xkcd))
+
+        if r.status_code == 404:
+            print("XKCD not found: %s" % xkcd)
+            sys.exit(1)
+
         page = r.text
         soup = BeautifulSoup(page)
 
