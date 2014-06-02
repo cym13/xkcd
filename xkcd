@@ -45,7 +45,7 @@ def download(soup):
     number = number.splitlines()[0].split("/")[-2]
 
     src_re = re.compile(r'^<.* src="([^"]+/([^"/]+))" .*>$')
-    url_line = soup.findAll("img")[2]
+    url_line = [x for x in soup.findAll("img") if "/comics/" in str(x)][0]
     dl_url = url_line["src"]
     name = number + ": " + url_line["src"].split("/")[-1]
 
