@@ -21,10 +21,11 @@
 """
 XKCD comics
 
-Usage: xkcd.py [-d] XKCD
+Usage: xkcd.py [-d] [-o] XKCD
 
 Options:
     -d, --download  Download corresponding xkcd.
+    -o, --open      Open the xkcd in the browser
 
 Argument:
     XKCD    If it is a number, prints the title and the transcript of the
@@ -36,6 +37,7 @@ Argument:
 import sys
 import re
 import requests
+from subprocess import Popen
 from bs4 import BeautifulSoup
 from docopt import docopt
 
@@ -86,6 +88,16 @@ def main():
 
         if args['--download']:
             download(soup)
+
+        elif args['--open']:
+            try:
+                int(xkcd)
+                Popen(["sensible-browser", "http://xkcd.com/" + str(xkcd)])
+
+            except ValueError:
+                print("--open takes a number in argument")
+                sys.exit(1)
+
         else:
             print(transcript(soup))
 
