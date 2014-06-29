@@ -43,6 +43,12 @@ from docopt import docopt
 
 
 def download(soup):
+    dl_url, name = get_url(soup)
+    r = requests.get(dl_url)
+    open(name, "wb").write(r.content)
+
+
+def get_url(soup):
     number = soup.text[soup.text.index("http://xkcd.com"):]
     number = number.splitlines()[0].split("/")[-2]
 
@@ -51,8 +57,7 @@ def download(soup):
     dl_url = url_line["src"]
     name = number + ": " + url_line["src"].split("/")[-1]
 
-    r = requests.get(dl_url)
-    open(name, "wb").write(r.content)
+    return dl_url, name
 
 
 def search(query):
@@ -99,6 +104,7 @@ def main():
                 sys.exit(1)
 
         else:
+            print(get_url(soup)[0] + "\n")
             print(transcript(soup))
 
     else:
