@@ -57,6 +57,9 @@ def get_url(soup):
     dl_url = url_line["src"]
     name = number + ": " + url_line["src"].split("/")[-1]
 
+    if not dl_url.startswith("http:"):
+        dl_url = "http:" + dl_url
+
     return dl_url, name
 
 
